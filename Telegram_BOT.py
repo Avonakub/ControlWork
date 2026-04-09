@@ -3,11 +3,12 @@ import telebot
 import os
 import datetime
 import locale
+import db_telegrambot
 from random import randint, choice
 from PIL import Image, ImageFilter
 
 
-TOKEN = "место для токена"
+TOKEN = ""
 
 try:
     locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
@@ -15,7 +16,7 @@ except:
     try:
         locale.setlocale(locale.LC_TIME, 'ru_RU')
     except:
-        print("Русская локаль не найдена")
+        print("Русский язык не найден, дата будет на английском")
 
 BUTTON_FACT = "🎓 Факт"
 BUTTON_FUTURE = "🔮 Предсказание"
