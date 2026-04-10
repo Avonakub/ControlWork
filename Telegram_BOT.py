@@ -28,6 +28,15 @@ LAST_BOT_QUESTION = {}
 USER_CURRENT_IMAGE_PATH = {}
 
 bot = telebot.TeleBot(TOKEN)
+conn = db_telegrambot.connect_db()
+
+
+def log_user_action(user_id, action_user, user_message=None, bot_response=None):
+    try:
+        db_telegrambot.save_user_action(conn, user_id, action_user,
+                                        user_message, bot_response)
+    except Exception as e:
+        print(f"Ошибка логирования: {e}")
 
 
 def create_menu():
@@ -254,9 +263,7 @@ def get_emoji_and_name(player_choice):
 # ========================= БЛОК ДОСТУПНЫХ КОМАНД БОТА =================================
 @bot.message_handler(commands=['start'])
 def handle_start(message):
-    bot.send_message(
-        message.chat.id,
-        "✨ 𝓦𝓮𝓵𝓬𝓸𝓂𝓮 ✨\n"
+    response_text = ("✨ 𝓦𝓮𝓵𝓬𝓸𝓂𝓮 ✨\n"
         "Я бот для контрольной работы!\n 📌Мои команды: \n"
         "/start - Запуск бота\n"
         "/help - Помощь в навигации по боту\n"
@@ -273,24 +280,55 @@ def handle_start(message):
         "- Пикселизация - создает эффект мозаики\n"
         "- Растяжение вниз - растягивает среднюю строку по вертикали\n"
         "- Размытие - делает изображение размытым\n"
-        "- Инверсия - создает негатив (обратные цвета)\n",
+        "- Инверсия - создает негатив (обратные цвета)\n")
 
+    user = message.from_user
+    username = user.username
+    user_id = user.id
 
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "/start",
+        "Нажатие",
+        f"Ответ: {response_text}"
+    )
+
+    bot.send_message(
+        message.chat.id,
+        response_text,
         reply_markup = create_menu()
     )
 
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    bot.send_message(
-        message.chat.id,
-        "Чтобы мы начали работать, просто выбери, что тебе нужно сейчас:\n"
+    response_text = ("Чтобы мы начали работать, просто выбери, что тебе нужно сейчас:\n"
         "🛠 База: Узнать точное /time или перезапустить систему через /start.\n"
         "🎲 Удача: Испытай судьбу! Брось /coin или /cube, а можешь задать вопрос судьбе в /ask.\n"
         "🎨 Креатив: Пришли мне любое фото, и я превращу его в шедевр (Черно-белое, Пиксели, Инверсия и др.).\n"
-        "Можешь использовать кнопки в меню 👇",
+        "Можешь использовать кнопки в меню 👇")
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "/help",
+        "Нажатие",
+        f"Ответ: {response_text}"
+    )
+
+    bot.send_message(
+        message.chat.id,
+        response_text,
         reply_markup = create_menu()
     )
+
 
 @bot.message_handler(commands=['coin'])
 def imitate_coinflip(message):
@@ -302,6 +340,19 @@ def imitate_coinflip(message):
     else:
         result = "⚡ На ребро!"
 
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "/coin",
+        "Нажатие",
+        f"Ответ: {answer}"
+    )
+
     bot.send_message(
         message.chat.id,
         result,
@@ -312,6 +363,20 @@ def imitate_coinflip(message):
 @bot.message_handler(commands=['cube'])
 def imitate_cube(message):
     answer = randint(1, 6)
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "/cube",
+        "Нажатие",
+        f"Ответ: {answer}"
+    )
+
     bot.send_message(
     message.chat.id,
     f"🎲 Выпало: {answer}",
@@ -330,6 +395,20 @@ def help_choice(message):
         "Возможно, но не факт!"]
 
     random_answer = choice(answers)
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "/ask",
+        "Нажатие",
+        f"Ответ: {random_answer}"
+    )
+
     bot.send_message(
         message.chat.id,
         random_answer,
@@ -339,7 +418,6 @@ def help_choice(message):
 
 @bot.message_handler(commands=['time'])
 def send_time(message):
-
     msk_tz = pytz.timezone('Europe/Moscow')
     now = datetime.datetime.now(msk_tz)
 
@@ -348,6 +426,19 @@ def send_time(message):
         f"📅 Дата: {now.strftime('%d %B %Y года')}\n"
         f"📆 День недели: {now.strftime('%A')}\n"
         f"🌍 Часовой пояс: МСК (UTC+3)"
+    )
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "/time",
+        "Нажатие",
+        f"Ответ: {response}"
     )
 
     bot.send_message(
@@ -388,7 +479,22 @@ def handle_button_future(message):
         "💎 Инвестируй в себя - это окупится",
         "🤔 Сегодня ты вспомнишь что-то важное",
     ]
+
     prediction = choice(predictions)
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "🔮 Предсказание",
+        "Нажатие",
+        f"Ответ: {prediction}"
+    )
+
     bot.send_message(
         message.chat.id,
         prediction,
@@ -419,6 +525,20 @@ def handle_button_fact(message):
     ]
 
     fact = choice(facts)
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "🎓 Факт",
+        "Нажатие",
+        f"Ответ: {fact}"
+    )
+
     bot.send_message(
         message.chat.id,
         fact,
@@ -428,23 +548,53 @@ def handle_button_fact(message):
 
 @bot.message_handler(func=lambda message: message.text == "🗑️ Скрыть меню")
 def hide_menu(message):
+    response_text = "😎 Меню скрыто. Нажмите /start чтобы вернуть меню."
     # Удаляем клавиатуру
     markup = telebot.types.ReplyKeyboardRemove()
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "️ Скрыть меню",
+        "Нажатие",
+        f"Ответ: {response_text}"
+    )
+
     bot.send_message(
         message.chat.id,
-        "😎 Меню скрыто. Нажмите /start чтобы вернуть меню.",
+        response_text,
         reply_markup=markup
     )
 
 
 @bot.message_handler(func=lambda message: message.text == BUTTON_GAME_RPS)
 def handle_game_rps(message):
+    response_text = "Игра камень-ножницы бумага! Выбери свой ход!"
     chat_id = message.chat.id
     if chat_id not in RPS_STATS:
         RPS_STATS[chat_id] = {"wins": 0, "losses": 0, "draws": 0, "total": 0}
+
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
+    log_user_action(
+        user_id,
+        "️🤜✌️✋ Камень-ножницы-бумага",
+        "Нажатие",
+        f"Ответ: {response_text}"
+    )
+
     bot.send_message(
         message.chat.id,
-        "Игра камень-ножницы бумага! Выбери свой ход!",
+        response_text,
         parse_mode="Markdown",
         reply_markup=create_game_keyboard()
     )
@@ -455,15 +605,31 @@ def handle_any_text(message):
     text = message.text.strip().lower()
     chat_id = message.chat.id
 
+    # user = message.from_user
+    # username = user.username
+    # user_id = user.id
+    #
+    # db_telegrambot.register_user(conn, username, user_id)
+
     if any(phrase in text for phrase in ["как дела", "как ты", "как настроение", "как жизнь", "how are you"]):
         responses = [
             "😊 У меня всё отлично! Спасибо, что спросил! А у тебя?",
             "🌟 Отлично! Спасибо! Расскажи, как у тебя?",
             "💫 У меня всё замечательно! А у тебя как?"
         ]
+
+        # answer = choice(responses)
+        #
+        # log_user_action(
+        #     user_id,
+        #     "️Текстовое сообщение",
+        #     f"Отправлено {text}",
+        #     f"Ответ: {answer}"
+        # )
+
         bot.send_message(
             message.chat.id,
-            choice(responses),
+            # answer,
             reply_markup=create_menu()
         )
         LAST_BOT_QUESTION[chat_id] = True
