@@ -8,7 +8,7 @@ from random import randint, choice
 from PIL import Image, ImageFilter
 
 
-TOKEN = ""
+TOKEN = "место для токена"
 
 try:
     locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
@@ -282,17 +282,17 @@ def handle_start(message):
         "- Размытие - делает изображение размытым\n"
         "- Инверсия - создает негатив (обратные цвета)\n")
 
-    user = message.from_user
-    username = user.username
-    user_id = user.id
+    user = message.from_user # инфа о юзере, который отправил сообщение
+    username = user.username # username в телеграме
+    user_id = user.id # идентификатор пользователя (длинный айдишник)
 
-    db_telegrambot.register_user(conn, username, user_id)
+    db_telegrambot.register_user(conn, username, user_id) # регистрируем юзера
 
-    log_user_action(
-        user_id,
-        "/start",
-        "Нажатие",
-        f"Ответ: {response_text}"
+    log_user_action( # сохраняем логи всех действий
+        user_id, # айдишник юзера
+        "/start", # какую команду выбрал
+        "Нажатие", # какое действие произвел
+        f"Ответ: {response_text}" # ответ бота
     )
 
     bot.send_message(
@@ -350,7 +350,7 @@ def imitate_coinflip(message):
         user_id,
         "/coin",
         "Нажатие",
-        f"Ответ: {answer}"
+        f"Ответ: {result}"
     )
 
     bot.send_message(
@@ -374,7 +374,7 @@ def imitate_cube(message):
         user_id,
         "/cube",
         "Нажатие",
-        f"Ответ: {answer}"
+        f"Ответ: 🎲 Выпало: {answer}"
     )
 
     bot.send_message(
@@ -605,11 +605,11 @@ def handle_any_text(message):
     text = message.text.strip().lower()
     chat_id = message.chat.id
 
-    # user = message.from_user
-    # username = user.username
-    # user_id = user.id
-    #
-    # db_telegrambot.register_user(conn, username, user_id)
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
 
     if any(phrase in text for phrase in ["как дела", "как ты", "как настроение", "как жизнь", "how are you"]):
         responses = [
@@ -618,18 +618,18 @@ def handle_any_text(message):
             "💫 У меня всё замечательно! А у тебя как?"
         ]
 
-        # answer = choice(responses)
-        #
-        # log_user_action(
-        #     user_id,
-        #     "️Текстовое сообщение",
-        #     f"Отправлено {text}",
-        #     f"Ответ: {answer}"
-        # )
+        answer = choice(responses)
+
+        log_user_action(
+            user_id,
+            "️Текстовое сообщение",
+            f"Отправлено сообщение: \"{text}\"",
+            f"Ответ: {answer}"
+        )
 
         bot.send_message(
             message.chat.id,
-            # answer,
+            answer,
             reply_markup=create_menu()
         )
         LAST_BOT_QUESTION[chat_id] = True
@@ -647,9 +647,19 @@ def handle_any_text(message):
             "🤗 О, привет! Давно не виделись!",
             "💫 Здравствуй, друг! Нажми /start для запуска или /help, если нужна помощь."
         ]
+
+        answer = choice(responses)
+
+        log_user_action(
+            user_id,
+            "️Текстовое сообщение",
+            f"Отправлено сообщение: \"{text}\"",
+            f"Ответ: {answer}"
+        )
+
         bot.send_message(
             message.chat.id,
-            choice(responses),
+            answer,
             reply_markup=create_menu()
         )
         LAST_BOT_QUESTION[chat_id] = True
@@ -667,9 +677,19 @@ def handle_any_text(message):
             "👋 Пока! Возвращайся скорее!",
             "🎈 Счастливого пути! Заходи ещё!",
         ]
+
+        answer = choice(responses)
+
+        log_user_action(
+            user_id,
+            "️Текстовое сообщение",
+            f"Отправлено сообщение: \"{text}\"",
+            f"Ответ: {answer}"
+        )
+
         bot.send_message(
             message.chat.id,
-            choice(responses),
+            answer,
             reply_markup=create_menu()
         )
         LAST_BOT_QUESTION.pop(chat_id, None)
@@ -682,6 +702,14 @@ def handle_any_text(message):
                 "🌟 Класс! Что нового?",
             ]
             chosen_response = choice(responses)
+
+            log_user_action(
+                user_id,
+                "️Текстовое сообщение",
+                f"Отправлено сообщение: \"{text}\"",
+                f"Ответ: {chosen_response}"
+            )
+
             bot.send_message(chat_id, chosen_response, reply_markup=create_menu())
 
             if "Что нового?" in chosen_response:
@@ -695,13 +723,23 @@ def handle_any_text(message):
                 "😊 Понятно! Если будет скучно — поиграем!",
                 "🎮 Может, сыграем во что-нибудь? Нажми кнопку ниже, чтобы начать."
             ]
+
+            answer = choice(responses)
+
+            log_user_action(
+                user_id,
+                "️Текстовое сообщение",
+                f"Отправлено сообщение: \"{text}\"",
+                f"Ответ: {answer}"
+            )
+
             keyboard = telebot.types.InlineKeyboardMarkup(row_width=1)
             keyboard.add(
                 telebot.types.InlineKeyboardButton("🎮 Играть", callback_data="offer_game"),
             )
             bot.send_message(
                 chat_id,
-                choice(responses),
+                answer,
                 reply_markup=keyboard
             )
             LAST_BOT_QUESTION.pop(chat_id, None)
@@ -712,9 +750,21 @@ def handle_any_text(message):
             keyboard.add(
                 telebot.types.InlineKeyboardButton("🎮 Играть", callback_data="offer_game"),
             )
+
+            answer = "😔 Мне жаль. Хочешь, поиграем? Если да, нажми кнопку ниже."
+            # Сохраняем информацию о кнопке в ответе
+            bot_response_with_button = f"{answer} [Кнопка: 🎮 Играть → callback_data: offer_game]"
+
+            log_user_action(
+                user_id,
+                "️Текстовое сообщение",
+                f"Отправлено сообщение: \"{text}\"",
+                f"Ответ: {bot_response_with_button}"
+            )
+
             bot.send_message(
                 chat_id,
-                "😔 Мне жаль. Хочешь, поиграем? Если да, нажми кнопку ниже.",
+                answer,
                 reply_markup=keyboard
             )
             LAST_BOT_QUESTION.pop(chat_id, None)
@@ -724,7 +774,16 @@ def handle_any_text(message):
             responses = [
             f"😊 Понятно!",
             ]
+
             chosen_response = choice(responses)
+
+            log_user_action(
+                user_id,
+                "️Текстовое сообщение",
+                f"Отправлено сообщение: \"{text}\"",
+                f"Ответ: {chosen_response}"
+            )
+
             bot.send_message(chat_id, chosen_response, reply_markup=create_menu())
             LAST_BOT_QUESTION.pop(chat_id, None)
             return
@@ -734,9 +793,19 @@ def handle_any_text(message):
             "😔 Понимаю. Если передумаешь — я всегда здесь!",
             "💫 Как скажешь. Обращайся, если что-то понадобится!",
         ]
+
+        answer = choice(responses)
+
+        log_user_action(
+            user_id,
+            "️Текстовое сообщение",
+            f"Отправлено сообщение: \"{text}\"",
+            f"Ответ: {answer}"
+        )
+
         bot.send_message(
             message.chat.id,
-            choice(responses),
+            answer,
             reply_markup=create_menu()
         )
         LAST_BOT_QUESTION.pop(chat_id, None)
@@ -747,9 +816,22 @@ def handle_any_text(message):
         keyboard.add(
             telebot.types.InlineKeyboardButton("🎮 Играть", callback_data="offer_game"),
         )
+
+        answer = "🎉 Отлично! Нажми кнопку, чтобы начать!"
+
+        # Сохраняем информацию о кнопке в ответе
+        bot_response_with_button = f"{answer} [Кнопка: 🎮 Играть → callback_data: offer_game]"
+
+        log_user_action(
+            user_id,
+            "️Текстовое сообщение",
+            f"Отправлено сообщение: \"{text}\"",
+            f"Ответ: {bot_response_with_button}"
+        )
+
         bot.send_message(
             message.chat.id,
-            "🎉 Отлично! Нажми кнопку, чтобы начать!",
+            answer,
             reply_markup=keyboard
         )
         return
@@ -760,9 +842,7 @@ def handle_any_text(message):
     if message.text in [BUTTON_FACT, BUTTON_FUTURE, BUTTON_GAME_RPS]:
         return
 
-    bot.send_message(
-        message.chat.id,
-        "🤔 *Я тебя не понял*\n\n"
+    response_text = ("🤔 *Я тебя не понял*\n\n"
         "Доступные команды:\n"
         "/start - Запуск бота\n"
         "/help - Помощь в навигации по боту\n"
@@ -770,7 +850,18 @@ def handle_any_text(message):
         "/cube - Подброс кубика\n"
         "/ask - Подумай о чем угодно и нажми эту кнопку, если не можешь определиться с выбором\n"
         "/time - Нажми, чтобы узнать текущую дату и время\n\n"
-        "Или используй кнопки в меню 👇",
+        "Или используй кнопки в меню 👇")
+
+    log_user_action(
+        user_id,
+        "Текстовое сообщение",
+        "Отправлено нераспознанное ботом сообщение: \"{text}\" ",
+        f"Ответ: {response_text}"
+    )
+
+    bot.send_message(
+        message.chat.id,
+        response_text,
         parse_mode='Markdown',
         reply_markup=create_menu()
     )
@@ -781,6 +872,12 @@ def handle_photo(message):
     arrange_folders()
 
     chat_id = message.chat.id
+    user = message.from_user
+    username = user.username
+    user_id = user.id
+
+    db_telegrambot.register_user(conn, username, user_id)
+
     photo_info = message.photo[len(message.photo) - 1]
 
     file_info = bot.get_file(photo_info.file_id)
@@ -794,9 +891,17 @@ def handle_photo(message):
 
     USER_CURRENT_IMAGE_PATH[chat_id] = image_path
 
+    answer = "Картинка получена, выберите фильтр"
+
+    log_user_action(
+        user_id,
+        "Отправка изображения",
+        f"Отправлено изображение: {image_path}",
+        f"Ответ: {answer}"
+    )
     bot.send_message(
         chat_id,
-        text="Картинка получена, выберите фильтр",
+        text=answer,
         reply_markup=create_filters_keyboard()
     )
 
@@ -804,34 +909,62 @@ def handle_photo(message):
 @bot.callback_query_handler(func=lambda call: True)
 def handle_callback(call):
     callback_data = call.data
+
     chat_id = call.message.chat.id
+    user_id = call.from_user.id
+    username = call.from_user.username
+
+    db_telegrambot.register_user(conn, username, user_id)
 
     if callback_data.startswith("filter"):
         if chat_id not in USER_CURRENT_IMAGE_PATH:
             bot.answer_callback_query(call.id, "Сначала отправьте картинку")
+
+            log_user_action(
+                user_id,
+                f"Попытка применить фильтр {callback_data} без отправленного изображения",
+                "Нажатие",
+                "Ответ: \"Сначала отправьте картинку\""
+            )
             return
 
         source_path = USER_CURRENT_IMAGE_PATH[chat_id]
         result_path = f"results/{chat_id}.jpg"
 
+        filter_name = "" # определяем название фильтра для логирования
         if callback_data == "filter_grayscale":
             apply_grayscale_filter(source_path, result_path)
+            filter_name = "Черно-белый фильтр"
         elif callback_data == "filter_binarization":
             apply_binarization(source_path, result_path)
+            filter_name = "Бинаризация"
         elif callback_data == "filter_pixelization":
             pixelate_image(source_path, result_path)
+            filter_name = "Пикселизация"
         elif callback_data == "filter_custom":
             custom_filter(source_path, result_path)
+            filter_name = "Растяжение вниз"
         elif callback_data == "filter_blur":
             blur_image(source_path, result_path)
+            filter_name = "Размытие"
         elif callback_data == "filter_invert":
             invert_image(source_path, result_path)
+            filter_name = "Инверсия"
+
+        answer = "✅ Готово!"
+
+        log_user_action(
+            user_id,
+            "Применение фильтра после загрузки картинки",
+            f"Применен фильтр {filter_name} к картинке {source_path}",
+            f"Ответ: {answer}"
+        )
 
         with open(result_path, "rb") as image_file:
             bot.send_photo(
                 chat_id,
                 image_file,
-                caption="\n✅ Готово!",
+                caption=answer,
                 reply_markup=create_menu()
             )
 
@@ -846,6 +979,7 @@ def handle_callback(call):
         keyboard.add(
             telebot.types.InlineKeyboardButton("🤜✌️✋ Камень-ножницы-бумага", callback_data="start_rps")
         )
+
         bot.edit_message_text(
             "🎮 Начинаем!",
             chat_id,
@@ -856,6 +990,14 @@ def handle_callback(call):
         return
 
     if callback_data == "start_rps":
+
+        log_user_action(
+            user_id,
+            "Начало игры",
+            "Пользователь нажал на кнопку 🤜✌️✋ Камень-ножницы-бумага",
+            "Предложен выбор игры: Камень-ножницы-бумага"
+        )
+
         if chat_id not in RPS_STATS:
             RPS_STATS[chat_id] = {"wins": 0, "losses": 0, "draws": 0, "total": 0}
         bot.edit_message_text(
@@ -871,6 +1013,14 @@ def handle_callback(call):
     if callback_data == "rps_stats":
         stats = RPS_STATS.get(chat_id, {"wins": 0, "losses": 0, "draws": 0, "total": 0})
         total = stats["total"]
+
+        log_user_action(
+            user_id,
+            "Пользователь выбрал просмотр статистики игр",
+            f"Всего игр: {total}, Побед: {stats['wins']}, "
+            f"Поражений: {stats['losses']}, Ничьих: {stats['draws']}",
+            "Ответ: Показана статистика игр"
+        )
 
         if total == 0:
             stats_text = "📊 *Твоя статистика:*\n"
@@ -899,10 +1049,18 @@ def handle_callback(call):
 
     if callback_data == "rps_reset":
         if chat_id in RPS_STATS:
-            RPS_STATS[chat_id] = {"wins": 0, "losses": 0, "draws": 0, "total": 0}
+            old_stats = RPS_STATS.get(chat_id, {"wins": 0, "losses": 0, "draws": 0, "total": 0})
             message = "✅ Статистика сброшена!"
         else:
             message = "📊 Статистика и так пуста."
+
+        log_user_action(
+            user_id,
+            "Пользователь сбросил статистику игр",
+            f"Было: Всего игр: {old_stats['total']}, "
+            f"Побед: {old_stats['wins']}, Поражений: {old_stats['losses']}, Ничьих: {old_stats['draws']}",
+            f"Ответ: {message}"
+        )
 
         bot.answer_callback_query(call.id, message)
         bot.delete_message(chat_id, call.message.message_id)
@@ -956,6 +1114,12 @@ def handle_callback(call):
     else:
         result_message += "⚔️ *Ничья!* Давай еще раз?"
         RPS_STATS[chat_id]["draws"] += 1
+    log_user_action(
+        user_id,
+        "Игра",
+        f"Пользователь выбрал: {player_name}, Бот выбрал: {bot_name}",
+        f"Ответ: {result_message}"
+    )
 
     bot.edit_message_text(
         result_message,
