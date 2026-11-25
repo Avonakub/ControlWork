@@ -6,17 +6,14 @@
   <title>Измены — Серия 1: Домой</title>
   <style>
     :root {
-      --bg: #1a1d24;
-      --card: #252a33;
-      --text: #e8eaed;
-      --muted: #9aa3b2;
+      --bg: #14181f;
+      --card: #1f252e;
+      --text: #eef0f3;
+      --muted: #96a0ae;
       --accent: #5b9fd4;
-      --stroke: #3d4552;
-      --skin: #e8c4a8;
-      --hair-h: #a66b4a;
-      --hair-m: #3a3f47;
+      --stroke: #3a424f;
     }
-  * { box-sizing: border-box; }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -26,26 +23,64 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 16px 32px;
+      padding: 16px 12px 40px;
     }
-    h1 { font-size: 1.75rem; margin: 0 0 4px; }
-    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; text-align: center; max-width: 520px; }
+    .badge { color: var(--muted); font-size: 0.85rem; margin: 0 0 6px; text-align: center; }
+    h1 { font-size: 1.65rem; margin: 0 0 4px; text-align: center; }
+    .lead { color: var(--muted); font-size: 0.92rem; text-align: center; max-width: 560px; margin: 0 0 18px; line-height: 1.45; }
     .player {
       width: 100%;
-      max-width: 720px;
+      max-width: 900px;
       background: var(--card);
       border: 1px solid var(--stroke);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 14px;
+      padding: 12px;
     }
-    svg#stage { width: 100%; height: auto; display: block; border-radius: 8px; background: #13161c; border: 1px solid var(--stroke); }
-    .meta { margin-top: 14px; }
-    .meta h2 { margin: 0 0 8px; font-size: 1.2rem; }
-    .caption { line-height: 1.55; margin: 0 0 12px; min-height: 3.2em; }
-    .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .frame-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #0a0c10;
+      border: 1px solid var(--stroke);
+    }
+    .frame-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      transform: scale(1.02);
+    }
+    .frame-wrap img.active {
+      opacity: 1;
+      animation: kenburns 6s ease-out forwards;
+    }
+    @keyframes kenburns {
+      from { transform: scale(1.04); }
+      to { transform: scale(1.12); }
+    }
+    .ep-label {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      z-index: 2;
+    }
+    .meta { margin-top: 14px; padding: 0 4px; }
+    .meta h2 { margin: 0 0 8px; font-size: 1.25rem; }
+    .caption { margin: 0 0 12px; line-height: 1.55; min-height: 3em; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .count { color: var(--muted); font-size: 0.85rem; }
     .progress { height: 4px; background: var(--stroke); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
-    .progress > div { height: 100%; background: var(--accent); width: 0%; transition: width 0.15s linear; }
+    .progress > div { height: 100%; background: var(--accent); width: 0%; transition: width 0.2s linear; }
     button {
       background: var(--accent);
       color: #fff;
@@ -55,22 +90,50 @@
       font-size: 0.95rem;
       cursor: pointer;
     }
-    button.sec { background: transparent; border: 1px solid var(--stroke); color: var(--text); }
-    .cast { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; max-width: 720px; width: 100%; margin-top: 24px; }
-    .cast div { background: var(--card); border: 1px solid var(--stroke); border-radius: 10px; padding: 12px; }
-    .cast h3 { margin: 0 0 4px; font-size: 1rem; }
-    .cast p { margin: 0; font-size: 0.8rem; color: var(--muted); }
-    .art { max-width: 720px; width: 100%; margin-top: 20px; display: grid; gap: 12px; }
-    .art img { width: 100%; border-radius: 8px; border: 1px solid var(--stroke); }
+    button.sec { background: transparent; border: 1px solid var(--stroke); color: var(--text); margin-left: 8px; }
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-width: 900px;
+      width: 100%;
+      margin-top: 20px;
+    }
+  @media (max-width: 640px) { .thumbs { grid-template-columns: repeat(2, 1fr); } }
+    .thumbs button {
+      padding: 0;
+      background: none;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 16/9;
+    }
+    .thumbs button.sel { border-color: var(--accent); }
+    .thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cast {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 900px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    @media (max-width: 520px) { .cast { grid-template-columns: 1fr; } }
+    .cast figure { margin: 0; background: var(--card); border: 1px solid var(--stroke); border-radius: 10px; overflow: hidden; }
+    .cast img { width: 100%; display: block; aspect-ratio: 3/4; object-fit: cover; }
+    .cast figcaption { padding: 10px; font-size: 0.85rem; color: var(--muted); }
+    .cast strong { color: var(--text); display: block; margin-bottom: 2px; }
   </style>
 </head>
 <body>
-  <p class="sub">Мультсериал по мотивам «Измены» · фан-проект · Серия 1</p>
-  <h1>Домой</h1>
-  <p class="sub">Лера ночует у Марка и утром возвращается к мужу Андрею.</p>
+  <p class="badge">Мультсериал по мотивам «Измены» · фан-проект</p>
+  <h1>Серия 1: Домой</h1>
+  <p class="lead">Полноценные мультяшные кадры — Лера у Марка, утром едет домой к Андрею.</p>
 
   <div class="player">
-    <svg id="stage" viewBox="0 0 640 360" aria-live="polite"></svg>
+    <div class="frame-wrap" id="frameWrap">
+      <span class="ep-label">СЕРИЯ 1</span>
+    </div>
     <div class="meta">
       <div class="row">
         <h2 id="sceneTitle">Утро</h2>
@@ -78,163 +141,87 @@
       </div>
       <p class="caption" id="sceneText"></p>
       <div class="progress"><div id="bar"></div></div>
-      <div class="row">
-        <div>
-          <button type="button" id="btnPlay">Пауза</button>
-          <button type="button" class="sec" id="btnRestart">К началу</button>
-        </div>
+      <div>
+        <button type="button" id="btnPlay">Пауза</button>
+        <button type="button" class="sec" id="btnRestart">Сначала</button>
       </div>
     </div>
   </div>
 
-  <div class="cast">
-    <div><h3>Лера</h3><p>Главная героиня</p></div>
-    <div><h3>Андрей</h3><p>Муж</p></div>
-    <div><h3>Марк</h3><p>Любовник</p></div>
-  </div>
+  <div class="thumbs" id="thumbs" aria-label="Сцены"></div>
 
-  <div class="art">
-    <img src="assets/izmeny-ep1-title.jpg" alt="Титр серии 1" />
-    <img src="assets/heroine-cartoon.jpg" alt="Лера" />
-    <img src="assets/men-cartoon-pair.jpg" alt="Андрей и Марк" />
+  <div class="cast">
+    <figure>
+      <img src="assets/heroine-cartoon.jpg" alt="Лера" />
+      <figcaption><strong>Лера</strong>Главная героиня</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/men-cartoon-pair.jpg" alt="Андрей и Марк" />
+      <figcaption><strong>Андрей и Марк</strong>Муж и любовник</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/izmeny-ep1-title.jpg" alt="Титр" />
+      <figcaption><strong>Титр</strong>Серия 1</figcaption>
+    </figure>
   </div>
 
   <script>
     const SCENES = [
-      { title: "Утро", text: "Лера просыпается не в своей постели. За окном — чужой двор.", loc: "loft", ms: 5500, id: 0 },
-      { title: "Он", text: "Марк спит. Ей нельзя будить — только взять пальто и уйти тихо.", loc: "loft", ms: 5000, id: 1 },
-      { title: "Зеркало", text: "В отражении — чужая улыбка вчерашнего вечера. Дома ждут другую женщину.", loc: "loft", ms: 5500, id: 2 },
-      { title: "Решение", text: "Такси уже едет. Телефон: «Доброе утро, солнышко». Это муж.", loc: "street", ms: 5500, id: 3 },
-      { title: "Подъезд", text: "Своя лестница пахнет яблоками и уютом. Сердце бьётся быстрее.", loc: "home", ms: 5000, id: 4 },
-      { title: "Кухня", text: "Андрей наливает кофе. Он верит, что она была у подруги.", loc: "home", ms: 5500, id: 5 },
-      { title: "Дверь", text: "Щелчок ключа. Два мира сходятся за одной дверью.", loc: "home", ms: 5500, id: 6 },
-      { title: "Домой", text: "Она обнимает мужа. Никто не говорит правду. Сериал только начался.", loc: "home", ms: 7000, id: 7 },
+      { title: "Утро", text: "Лера просыпается не в своей постели. За окном — чужой двор.", img: "assets/ep1-scene01-utro.jpg", ms: 6000 },
+      { title: "Он", text: "Марк спит. Ей нельзя будить — только взять пальто и уйти тихо.", img: "assets/ep1-scene02-on.jpg", ms: 5500 },
+      { title: "Зеркало", text: "В отражении — вчерашняя она и та, что пойдёт домой.", img: "assets/ep1-scene03-zerkalo.jpg", ms: 6000 },
+      { title: "Решение", text: "Такси уже едет. На экране: «Доброе утро, солнышко». Это муж.", img: "assets/ep1-scene04-taksi.jpg", ms: 6000 },
+      { title: "Подъезд", text: "Своя лестница, знакомый запах. Сердце бьётся быстрее.", img: "assets/ep1-scene05-podezd.jpg", ms: 5500 },
+      { title: "Кухня", text: "Андрей наливает кофе. Он думает, что она была у подруги.", img: "assets/ep1-scene06-kuhnya.jpg", ms: 6000 },
+      { title: "Дверь", text: "Щелчок ключа. Два мира встречаются в коридоре.", img: "assets/ep1-scene07-dver.jpg", ms: 6000 },
+      { title: "Домой", text: "Объятие. Правду никто не говорит. Сериал только начался.", img: "assets/ep1-scene08-domoy.jpg", ms: 7500 },
     ];
 
-    const svg = document.getElementById("stage");
+    const wrap = document.getElementById("frameWrap");
+    const thumbs = document.getElementById("thumbs");
+    const images = SCENES.map((sc, i) => {
+      const img = document.createElement("img");
+      img.src = sc.img;
+      img.alt = sc.title;
+      img.loading = i < 2 ? "eager" : "lazy";
+      wrap.appendChild(img);
+      const tb = document.createElement("button");
+      tb.type = "button";
+      tb.title = sc.title;
+      const ti = document.createElement("img");
+      ti.src = sc.img;
+      ti.alt = "";
+      tb.appendChild(ti);
+      tb.addEventListener("click", () => jumpTo(i));
+      thumbs.appendChild(tb);
+      return { img, tb };
+    });
+
     let sceneIndex = 0;
     let localT = 0;
     let playing = true;
-    let start = performance.now();
     let sceneStart = performance.now();
+    let raf;
 
-    function drawChar(g, variant, x, y, scale, facing, mood, asleep) {
-      const hair = variant === "heroine" ? "var(--hair-h)" : "var(--hair-m)";
-      const outfit = variant === "heroine" ? "var(--accent)" : variant === "lover" ? "#2c3340" : "var(--stroke)";
-      const gEl = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      gEl.setAttribute("transform", `translate(${x},${y}) scale(${facing * scale},${scale})`);
-      const add = (el) => gEl.appendChild(el);
-      const path = (d, attr) => {
-        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        p.setAttribute("d", d);
-        Object.assign(p, {});
-        for (const [k, v] of Object.entries(attr)) p.setAttribute(k, v);
-        add(p);
-      };
-      if (variant === "heroine") {
-        path("M -42 -82 C -20 -108 20 -108 42 -82 L 46 -70 C 30 -38 0 -28 -46 -56 Z", { fill: hair, opacity: 0.95 });
-      } else {
-        path("M -36 -78 C -8 -98 22 -92 34 -72 L 30 -58 C 8 -50 -28 -58 -36 -68 Z", { fill: hair });
-      }
-      const head = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
-      head.setAttribute("cx", "0"); head.setAttribute("cy", "-52"); head.setAttribute("rx", "34"); head.setAttribute("ry", "38");
-      head.setAttribute("fill", "var(--skin)"); head.setAttribute("stroke", "var(--text)"); head.setAttribute("stroke-width", "1.5");
-      add(head);
-      if (!asleep) {
-        [[-12,-54], [12,-54]].forEach(([cx, cy]) => {
-          const e = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
-          e.setAttribute("cx", cx); e.setAttribute("cy", cy); e.setAttribute("rx", "9"); e.setAttribute("ry", "11");
-          e.setAttribute("fill", "#13161c"); e.setAttribute("stroke", "var(--text)"); e.setAttribute("stroke-width", "1");
-          add(e);
-        });
-        [[-10,-52, variant === "heroine" ? "var(--accent)" : "var(--text)"], [14,-52, "var(--text)"]].forEach(([cx, cy, fill]) => {
-          const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", "4"); c.setAttribute("fill", fill);
-          add(c);
-        });
-      } else {
-        path("M -20 -52 Q -12 -46 -4 -52", { fill: "none", stroke: "var(--text)", "stroke-width": "2" });
-        path("M 4 -52 Q 12 -46 20 -52", { fill: "none", stroke: "var(--text)", "stroke-width": "2" });
-      }
-      if (mood === "smile") path("M -10 -34 Q 0 -26 14 -34", { fill: "none", stroke: "var(--text)", "stroke-width": "2" });
-      if (mood === "anxious") path("M -8 -35 L 10 -35", { fill: "none", stroke: "var(--text)", "stroke-width": "1.8" });
-      path("M -28 -14 Q 0 8 32 -10", { fill: outfit, stroke: "var(--text)", "stroke-width": "1.2" });
-      if (variant === "heroine") path("M -38 10 L 40 18 L 36 95 L -32 88 Z", { fill: outfit, opacity: 0.9, stroke: "var(--text)", "stroke-width": "1" });
-      g.appendChild(gEl);
-    }
-
-    function backdrop(g, loc, sceneId, t) {
-      const r = (x, y, w, h, fill) => {
-        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("x", x); rect.setAttribute("y", y); rect.setAttribute("width", w); rect.setAttribute("height", h);
-        rect.setAttribute("fill", fill);
-        g.appendChild(rect);
-      };
-      r(0, 0, 640, 360, "#1e232b");
-      if (loc === "loft") {
-        r(0, 180, 640, 180, "#2a3039");
-        r(380, 40, 200, 140, "#333a45");
-        r(60, 220, 180, 40, "#333a45");
-      } else if (loc === "street") {
-        r(0, 220, 640, 140, "#2a3039");
-        const carX = 120 + t * 280;
-        r(carX % 520, 235, 110, 38, "var(--text)");
-      } else {
-        r(0, 200, 640, 160, "#2a3039");
-        r(80, 60, 200, 120, "#333a45");
-        if (sceneId >= 6) r(300, 50, 120, 200, "#3a4150");
-        if (sceneId === 5) r(420, 140, 80, 90, "#3a4150");
-      }
-      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", "0"); line.setAttribute("y1", "300"); line.setAttribute("x2", "640"); line.setAttribute("y2", "300");
-      line.setAttribute("stroke", "var(--stroke)"); line.setAttribute("stroke-width", "2");
-      g.appendChild(line);
+    function jumpTo(i) {
+      sceneIndex = i;
+      localT = 0;
+      sceneStart = performance.now();
+      playing = true;
+      document.getElementById("btnPlay").textContent = "Пауза";
+      render();
     }
 
     function render() {
+      images.forEach(({ img, tb }, i) => {
+        const on = i === sceneIndex;
+        img.classList.toggle("active", on);
+        if (on) img.style.animation = "none";
+        if (on) void img.offsetWidth;
+        if (on) img.style.animation = "";
+        tb.classList.toggle("sel", on);
+      });
       const sc = SCENES[sceneIndex];
-      const t = localT;
-      const fade = Math.min(1, t * 2.5);
-      const walk = Math.sin(t * Math.PI * 2) * 6;
-      svg.innerHTML = "";
-      const bg = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      backdrop(bg, sc.loc, sc.id, t);
-      svg.appendChild(bg);
-      const cast = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      cast.setAttribute("opacity", fade);
-      const id = sc.id;
-      if (id === 0) drawChar(cast, "heroine", 320, 300, 1.15, 1, "anxious", false);
-      if (id === 1) {
-        drawChar(cast, "lover", 400, 305, 1.1, -1, "sleep", true);
-        drawChar(cast, "heroine", 240, 298, 1.1, 1, "anxious", false);
-      }
-      if (id === 2) {
-        drawChar(cast, "heroine", 300, 300, 1.2, 1, "anxious", false);
-        drawChar(cast, "heroine", 170, 305, 0.85, 1, "smile", false);
-      }
-      if (id === 3) drawChar(cast, "heroine", 280 + walk, 300, 1.1, 1, "anxious", false);
-      if (id === 4) drawChar(cast, "heroine", 320 + walk * 0.5, 302, 1.1, 1, "anxious", false);
-      if (id === 5) drawChar(cast, "husband", 460, 305, 1.12, -1, "warm", false);
-      if (id === 6) {
-        drawChar(cast, "heroine", 340, 300, 1.1, 1, "anxious", false);
-        drawChar(cast, "husband", 430, 305, 1.1, -1, "warm", false);
-      }
-      if (id === 7) {
-        drawChar(cast, "husband", 380, 305, 1.12, -1, "smile", false);
-        drawChar(cast, "heroine", 300, 300, 1.12, 1, "anxious", false);
-      }
-      svg.appendChild(cast);
-      const label = (x, y, txt, size) => {
-        const te = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        te.setAttribute("x", x); te.setAttribute("y", y); te.setAttribute("fill", "var(--muted)");
-        te.setAttribute("font-size", size || 12);
-        te.textContent = txt;
-        svg.appendChild(te);
-      };
-      label(24, 32, "СЕРИЯ 1", 12);
-      const locName = sc.loc === "loft" ? "Квартира Марка" : sc.loc === "street" ? "Город" : "Дом Леры и Андрея";
-      label(24, 348, locName, 11);
-
       document.getElementById("sceneTitle").textContent = sc.title;
       document.getElementById("sceneText").textContent = sc.text;
       document.getElementById("sceneCount").textContent = `${sceneIndex + 1} / ${SCENES.length}`;
@@ -259,24 +246,19 @@
         }
         render();
       }
-      requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     }
 
     document.getElementById("btnPlay").onclick = () => {
       if (sceneIndex === SCENES.length - 1 && localT >= 1 && !playing) {
-        sceneIndex = 0; localT = 0; playing = true; sceneStart = performance.now();
-        document.getElementById("btnPlay").textContent = "Пауза";
+        jumpTo(0);
         return;
       }
       playing = !playing;
       document.getElementById("btnPlay").textContent = playing ? "Пауза" : "Играть";
       if (playing) sceneStart = performance.now() - localT * SCENES[sceneIndex].ms;
     };
-    document.getElementById("btnRestart").onclick = () => {
-      sceneIndex = 0; localT = 0; playing = true; sceneStart = performance.now();
-      document.getElementById("btnPlay").textContent = "Пауза";
-      render();
-    };
+    document.getElementById("btnRestart").onclick = () => jumpTo(0);
 
     render();
     requestAnimationFrame(tick);
